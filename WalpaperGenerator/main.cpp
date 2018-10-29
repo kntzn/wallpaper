@@ -35,7 +35,7 @@ int main()
         int pos = (Time->tm_hour*60 + Time->tm_min)*sinLen/(24*60);
         int y = sizeY / 2 + float (sizeY / 8) * cos (float ((pos) * 2 * 3.14159f) / float (sinLen));
 
-        int h = -float (sizeY / 8) * cos ((Time->tm_yday + 9)*(2.f*3.14159f) / 365) / fabs (EARTH_AXIS / (90 - LAT));
+        int h = -float (sizeY / 8) * cos ((Time->tm_yday + 9)*(2.f*3.14159f) / 365) * fabs (EARTH_AXIS / (90 - LAT));
 
         // draws a sine wave
         for (int i = 0; i < sinLen; i++)
