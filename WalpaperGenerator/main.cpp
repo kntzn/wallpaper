@@ -1,5 +1,8 @@
 #define _CRT_SECURE_NO_WARNINGS
 
+#define EARTH_AXIS 23.44f
+#define LAT 56.f
+
 
 #include <SFML/Graphics.hpp>
 #include <ctime>
@@ -32,12 +35,15 @@ int main()
         int pos = (Time->tm_hour*60 + Time->tm_min)*sinLen/(24*60);
         int y = sizeY / 2 + float (sizeY / 8) * cos (float ((pos) * 2 * 3.14159f) / float (sinLen));
 
+        int h = -float (sizeY / 8) * cos ((Time->tm_yday + 9)*(2.f*3.14159f) / 365) / fabs (EARTH_AXIS / (90 - LAT));
+
         // draws a sine wave
         for (int i = 0; i < sinLen; i++)
             {
             uint8_t bright = 255 - 255 * pow (float (abs (pos - i)) / float (sinLen), 0.125);
             sf::Color col (bright, bright, bright);
             generated_img.setPixel (i + sizeX / 8, sizeY / 2 + float (sizeY / 8) * cos (float ((i) * 2 * 3.14159f) / float (sinLen)), col);
+            generated_img.setPixel (i + sizeX / 8, sizeY / 2 + h, col);
             }
 
         // draws a sun
