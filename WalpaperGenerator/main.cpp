@@ -1,3 +1,6 @@
+#define _CRT_SECURE_NO_WARNINGS
+
+
 #include <SFML/Graphics.hpp>
 #include <ctime>
 #include <Windows.h>
@@ -14,13 +17,19 @@ int main()
     sf::Image sun;
     sun.loadFromFile ("sun.png");
 
+
     while (true)
         {
+        // Gets time
+        time_t now = time (0);
+        tm* Time = localtime (&now);
+
+        // creates image
         sf::Image generated_img;
         generated_img.create (sizeX, sizeY, sf::Color::Black);
-    
+
         // coords of sun/moon
-        int pos = rand()%sinLen;
+        int pos = (Time->tm_hour*60 + Time->tm_min)*sinLen/(24*60);
         int y = sizeY / 2 + float (sizeY / 8) * cos (float ((pos) * 2 * 3.14159f) / float (sinLen));
 
         // draws a sine wave
@@ -40,7 +49,7 @@ int main()
 
         SystemParametersInfo (SPI_SETDESKWALLPAPER, 0, L"C:\\wp\\bgr.png", SPIF_UPDATEINIFILE);
 
-        Sleep (1000);
+        Sleep (60000);
         }
 
     
