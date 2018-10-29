@@ -10,6 +10,10 @@ int main()
     const int sizeY = 1080;
     const int sinLen = sizeX * 3 / 4;
 
+    const int sunSize = 25;
+    sf::Image sun;
+    sun.loadFromFile ("sun.png");
+
     while (true)
         {
         sf::Image generated_img;
@@ -26,6 +30,11 @@ int main()
             sf::Color col (bright, bright, bright);
             generated_img.setPixel (i + sizeX / 8, sizeY / 2 + float (sizeY / 8) * cos (float ((i) * 2 * 3.14159f) / float (sinLen)), col);
             }
+
+        // draws a sun
+        for (int i = pos; i < pos + sunSize; i++)
+            for (int j = y; j < y + sunSize; j++)
+                generated_img.setPixel (i - sunSize / 2 + sizeX / 8, j - sunSize / 2, sun.getPixel (i - pos, j - y));
 
         generated_img.saveToFile ("C:\\wp\\bgr.png");
 
