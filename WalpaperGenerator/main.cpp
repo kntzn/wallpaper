@@ -62,9 +62,9 @@ int main()
         bool isDay = (y < h + sizeY / 2);
 
         // draws a sine wave
-        for (int i = 0; i < sinLen; i++)
+        for (int i = -sizeX / 8; i < sinLen + sizeX / 8; i++)
             {
-            uint8_t bright = 255 - 255 * pow (float (abs (pos - i)) / float (sinLen), 0.125);
+            uint8_t bright = 255 - 255 * pow (float (abs (pos - i)) / float (sizeX), 0.1);
             sf::Color col (bright, bright, bright);
             generated_img.setPixel (i + sizeX / 8, sizeY / 2 + float (sizeY / 8) * cos (float ((i) * 2 * 3.14159f) / float (sinLen)), col);
             generated_img.setPixel (i + sizeX / 8, sizeY / 2 + h, col);
