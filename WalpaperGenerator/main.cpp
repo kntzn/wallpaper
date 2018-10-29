@@ -18,8 +18,16 @@ int main()
 
     const int sunSize = 25;
     sf::Image sun;
-    sun.loadFromFile ("sun.png");
+    if (sun.loadFromFile ("sun.png"))
+        std::cout << "Loaded sun.png";
+    else
+        std::cout << "Failed to load sun.png";
 
+    sf::Image moon;
+    if (moon.loadFromFile ("moon.png"))
+        std::cout << "Loaded moon.png";
+    else
+        std::cout << "Failed to load moon.png";
 
     while (true)
         {
@@ -36,7 +44,7 @@ int main()
         int y = sizeY / 2 + float (sizeY / 8) * cos (float ((pos) * 2 * 3.14159f) / float (sinLen));
 
         int h = -float (sizeY / 8) * cos ((Time->tm_yday + 9)*(2.f*3.14159f) / 365) * fabs (EARTH_AXIS / (90 - LAT));
-
+        
         // draws a sine wave
         for (int i = 0; i < sinLen; i++)
             {
@@ -49,7 +57,12 @@ int main()
         // draws a sun
         for (int i = pos; i < pos + sunSize; i++)
             for (int j = y; j < y + sunSize; j++)
-                generated_img.setPixel (i - sunSize / 2 + sizeX / 8, j - sunSize / 2, sun.getPixel (i - pos, j - y));
+                {
+                if (y > h + sizeY / 2)
+                    generated_img.setPixel (i - sunSize / 2 + sizeX / 8, j - sunSize / 2, moon.getPixel (i - pos, j - y));
+                else
+                    generated_img.setPixel (i - sunSize / 2 + sizeX / 8, j - sunSize / 2, sun.getPixel (i - pos, j - y));
+                }
 
         generated_img.saveToFile ("C:\\wp\\bgr.png");
 
