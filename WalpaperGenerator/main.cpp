@@ -52,13 +52,13 @@ int main()
         generated_img.create (sizeX, sizeY, sf::Color::Black);
 
         // coords of sun/moon
-        int pos = (Time->tm_hour * 60 + Time->tm_min + float (GMT * 15.f - LON) * (60.f / 15.f))*sinLen / (24 * 60);
+        int pos = (Time->tm_hour * 60 + Time->tm_min - float (GMT * 15.f - LON) * (60.f / 15.f))*sinLen / (24 * 60);
         int y = sizeY / 2 + float (sizeY / 8) * cos (float ((pos) * 2 * 3.14159f) / float (sinLen));
         int yMax = sizeY / 2 - sizeY / 8;
         int yMin = sizeY / 2 + sizeY / 8;
 
 
-        int h = -float (sizeY / 8) * cos ((Time->tm_yday + 9)*(2.f*3.14159f) / 365) * fabs (EARTH_AXIS / (90 - LAT));
+        int h = -float (sizeY / 8) * cos ((Time->tm_yday + 5)*(2.f*3.14159f) / 365) * fabs (EARTH_AXIS / (90 - LAT));
         
         // true if sun mode, false if moon mode
         bool isDay = (y < h + sizeY / 2);
