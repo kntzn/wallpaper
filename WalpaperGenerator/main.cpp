@@ -90,13 +90,13 @@ int main()
         obj_color.g = obj_color.b = 127 + 128 * sqrt (bright);
 
         // draws a sun or moon
-        for (int i = pos; i < pos + sunSize; i++)
+        for (int i = sizeX / 2; i < sizeX / 2 + sunSize; i++)
             for (int j = y; j < y + sunSize; j++)
                 {
                 if (isDay)
-                    generated_img.setPixel (i - sunSize / 2 + sizeX / 8, j - sunSize / 2, multiplex (obj_color, sun.getPixel (i - pos, j - y)));
+                    generated_img.setPixel (i - sunSize / 2, j - sunSize / 2, multiplex (obj_color, sun.getPixel (i - sizeX / 2, j - y)));
                 else
-                    generated_img.setPixel (i - sunSize / 2 + sizeX / 8, j - sunSize / 2, multiplex (obj_color, moon.getPixel (i - pos, j - y)));
+                    generated_img.setPixel (i - sunSize / 2, j - sunSize / 2, multiplex (obj_color, moon.getPixel (i - sizeX / 2, j - y)));
                 }
 
         generated_img.saveToFile ("C:\\wp\\bgr.png");
