@@ -44,10 +44,11 @@ sf::Image makeCopyRed (const int sunSize, sf::Image target, float bright)
 
 int main()
 	{
+    // Parameters
     const int sizeX = 1920;
     const int sizeY = 1080;
     const int centerOffset = sizeY / 2;
-    const int xOffset = sizeX / 8;
+    const int xOffset = sizeX/16;
 
     const int sinLen = sizeX - 2*xOffset;
     const float sinAmpl = float (sizeY) / 8.f;
@@ -56,10 +57,8 @@ int main()
     
     // Gets the current dir
     // I sure that there is much easier way to do it
-    std::string thisDirectory = "";
-    thisDirectory.append (_pgmptr);
-    assert (thisDirectory [(thisDirectory.size () - 1) - 8] == '\\');
-    for (int i = 0; i < 8; i++)
+    std::string thisDirectory = _pgmptr;
+    while (thisDirectory [(thisDirectory.size () - 1)] != '\\')
         thisDirectory.pop_back ();
     
     // Loads images
@@ -98,7 +97,7 @@ int main()
         int yMin =   sizeY / 8;
 
         // Zero-angle line height
-        int h = int (-sinAmpl * cos ((Time->tm_yday + 5)*(2.f*3.14159f) / 365) * fabs (EARTH_AXIS / (90 - LAT)));
+        int h = int (-sinAmpl * cos ((Time->tm_yday + 5)*(2.f*3.14159f) / 365) * fabs (EARTH_AXIS / (90.f - LAT)));
 
         // Value that represents current sun position
         bool isDay = (y < h);
@@ -109,6 +108,7 @@ int main()
             sf::Uint8 bright = 255 - sf::Uint8 (255 * pow (float (abs (sizeX / 2 - (i + xOffset))) / float (sizeX), 0.08));
             sf::Color col (bright, bright, bright);
 
+            // Draws the sine
             generated_img.setPixel (i + xOffset, centerOffset - int (sinAmpl * cos (float ((i + pos) * 2 * 3.14159f) / float (sinLen))), col);
 
             // Draws the line
