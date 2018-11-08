@@ -95,19 +95,27 @@ int main()
         sf::Color obj_color;
         obj_color.r = 255;
         obj_color.g = obj_color.b = 127 + 128 * sqrt (bright);
+        
+        // Copies of images
+        sf::Image sun_cpy = sun;
+        sf::Image moon_cpy = moon;
 
-        // draws a sun or moon
-        for (int i = sizeX / 2; i < sizeX / 2 + sunSize; i++)
-            {            
-            for (int j = y; j < y + sunSize; j++)
+        // Colors copies of the images of sun and moon
+        for (int i = 0; i < sunSize; i++)
+            for (int j = 0; j < sunSize; j++)
                 {
-                if (isDay)
-                    generated_img.setPixel (i - sunSize / 2, j - sunSize / 2, multiplex (obj_color, sun.getPixel (i - sizeX / 2, j - y)));
-                else
-                    generated_img.setPixel (i - sunSize / 2, j - sunSize / 2, multiplex (obj_color, moon.getPixel (i - sizeX / 2, j - y)));
+                sun_cpy.setPixel (i, j, multiplex (sun_cpy.getPixel (i, j), obj_color));
+                moon_cpy.setPixel (i, j, multiplex (moon_cpy.getPixel (i, j), obj_color));
                 }
-            }
 
+        // Draws sun or moon
+        if (isDay)
+            generated_img.copy (sun_cpy, sizeX / 2 - sunSize / 2, y - sunSize / 2);
+        else
+            generated_img.copy (moon_cpy, sizeX / 2 - sunSize / 2, y - sunSize / 2);
+
+
+        // Saves result
         if (generated_img.saveToFile (std::string (thisDirectory + "bgr.png").c_str ()))
             std::cout << "Saved bgr.png" << std::endl;
         else
