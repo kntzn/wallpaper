@@ -23,6 +23,24 @@ sf::Color multiplex (sf::Color c1, sf::Color c2)
     return result;
     }
 
+sf::Image makeCopyRed (const int sunSize, sf::Image target, float bright)
+    {
+    // Generates color from height of sun / moon
+    sf::Color obj_color;
+    obj_color.r = 255;
+    obj_color.g = obj_color.b = 127 + 128 * sqrt (bright);
+
+    // Copy of target
+    sf::Image sun_cpy = target;
+
+    // Colors copy of image
+    for (int i = 0; i < sunSize; i++)
+        for (int j = 0; j < sunSize; j++)
+            sun_cpy.setPixel (i, j, multiplex (sun_cpy.getPixel (i, j), obj_color));
+            
+    return sun_cpy;
+    }
+
 int main()
 	{
     const int sizeX = 1920;
@@ -78,9 +96,11 @@ int main()
         // draws a sine wave
         for (int i = -sizeX / 8; i < sinLen + sizeX / 8; i++)
             {
-            uint8_t bright = 255 - 255 * pow (float (abs (sizeX / 2 - (i + sizeX / 8))) / float (sizeX), 0.1);
+            uint8_t bright = 255 - 255 * pow (float (abs (sizeX / 2 - (i + sizeX / 8))) / float (sizeX), 0.08);
             sf::Color col (bright, bright, bright);
             generated_img.setPixel (i + sizeX / 8, sizeY / 2 + float (-sizeY / 8) * cos (float ((i + pos) * 2 * 3.14159f) / float (sinLen)), col);
+
+            // Draws the line
             generated_img.setPixel (i + sizeX / 8, sizeY / 2 + h, col);
             }
 
@@ -91,28 +111,15 @@ int main()
         else
             bright = float (y - (sizeY / 2 + h)) / float (yMin - (sizeY / 2 + h));
 
-        // generates color from height of sun / moon
-        sf::Color obj_color;
-        obj_color.r = 255;
-        obj_color.g = obj_color.b = 127 + 128 * sqrt (bright);
-        
-        // Copies of images
-        sf::Image sun_cpy = sun;
-        sf::Image moon_cpy = moon;
-
-        // Colors copies of the images of sun and moon
-        for (int i = 0; i < sunSize; i++)
-            for (int j = 0; j < sunSize; j++)
-                {
-                sun_cpy.setPixel (i, j, multiplex (sun_cpy.getPixel (i, j), obj_color));
-                moon_cpy.setPixel (i, j, multiplex (moon_cpy.getPixel (i, j), obj_color));
-                }
-
         // Draws sun or moon
         if (isDay)
-            generated_img.copy (sun_cpy, sizeX / 2 - sunSize / 2, y - sunSize / 2);
+            generated_img.copy (makeCopyRed (sunSize, sun, bright), 
+                                sizeX / 2 - sunSize / 2, 
+                                y         - sunSize / 2);
         else
-            generated_img.copy (moon_cpy, sizeX / 2 - sunSize / 2, y - sunSize / 2);
+            generated_img.copy (makeCopyRed (sunSize, moon, bright), 
+                                sizeX / 2 - sunSize / 2,
+                                y         - sunSize / 2);
 
 
         // Saves result
