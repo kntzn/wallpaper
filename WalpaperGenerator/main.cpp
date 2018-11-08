@@ -28,8 +28,8 @@ sf::Image makeCopyRed (const int sunSize, sf::Image target, float bright)
     {
     // Generates color from height of sun / moon
     sf::Color obj_color;
-    obj_color.r = 255;
-    obj_color.g = obj_color.b = 127 + 128 * sqrt (bright);
+    obj_color.r = sf::Uint8 (255);
+    obj_color.g = obj_color.b = sf::Uint8 (127) + sf::Uint8 (128 * sqrt (bright));
 
     // Copy of target
     sf::Image sun_cpy = target;
@@ -93,23 +93,23 @@ int main()
         // Coords of sun/moon
         int pos = int (float (sinLen)*(currentLocalTime / float (24 * 60)));
         
-        int y = sinAmpl * cos (float ((pos) * 2 * 3.14159f) / float (sinLen));
+        int y = int (sinAmpl * cos (float ((pos) * 2 * 3.14159f) / float (sinLen)));
         int yMax = - sizeY / 8;
         int yMin =   sizeY / 8;
 
         // Zero-angle line height
-        int h = -float (sizeY / 8) * cos ((Time->tm_yday + 5)*(2.f*3.14159f) / 365) * fabs (EARTH_AXIS / (90 - LAT));
+        int h = int (-sinAmpl * cos ((Time->tm_yday + 5)*(2.f*3.14159f) / 365) * fabs (EARTH_AXIS / (90 - LAT)));
 
         // Value that represents current sun position
         bool isDay = (y < h);
 
         // draws a sine wave
-        for (int i = -sizeX / 8; i < sinLen + sizeX / 8; i++)
+        for (int i = -xOffset; i < sinLen + xOffset; i++)
             {
-            uint8_t bright = 255 - 255 * pow (float (abs (sizeX / 2 - (i + xOffset))) / float (sizeX), 0.08);
+            sf::Uint8 bright = 255 - sf::Uint8 (255 * pow (float (abs (sizeX / 2 - (i + xOffset))) / float (sizeX), 0.08));
             sf::Color col (bright, bright, bright);
 
-            generated_img.setPixel (i + xOffset, centerOffset - sinAmpl * cos (float ((i + pos) * 2 * 3.14159f) / float (sinLen)), col);
+            generated_img.setPixel (i + xOffset, centerOffset - int (sinAmpl * cos (float ((i + pos) * 2 * 3.14159f) / float (sinLen))), col);
 
             // Draws the line
             generated_img.setPixel (i + xOffset, centerOffset + h, col);
