@@ -52,11 +52,9 @@ int main()
     else
         std::cout << "Failed to load moon.png\n";
 
-
-
     while (true)
         {
-        // Gets time
+        // Gets current pc time
         time_t now = time (0);
         tm* Time = localtime (&now);
 
@@ -66,14 +64,15 @@ int main()
 
         // coords of sun/moon
         int pos = (Time->tm_hour * 60 + Time->tm_min - float (GMT * 15.f - LON) * (60.f / 15.f))*sinLen / (24 * 60);
+        
         int y = sizeY / 2 + float (sizeY / 8) * cos (float ((pos) * 2 * 3.14159f) / float (sinLen));
         int yMax = sizeY / 2 - sizeY / 8;
         int yMin = sizeY / 2 + sizeY / 8;
 
-
+        // Zero-angle line
         int h = -float (sizeY / 8) * cos ((Time->tm_yday + 5)*(2.f*3.14159f) / 365) * fabs (EARTH_AXIS / (90 - LAT));
-        
-        // true if sun mode, false if moon mode
+
+        // Value that represents current sun position
         bool isDay = (y < h + sizeY / 2);
 
         // draws a sine wave
@@ -81,22 +80,17 @@ int main()
             {
             uint8_t bright = 255 - 255 * pow (float (abs (sizeX / 2 - (i + sizeX / 8))) / float (sizeX), 0.1);
             sf::Color col (bright, bright, bright);
-            generated_img.setPixel (i + sizeX / 8, sizeY / 2 + float (-sizeY / 8) * cos (float ((i+pos) * 2 * 3.14159f) / float (sinLen)), col);
+            generated_img.setPixel (i + sizeX / 8, sizeY / 2 + float (-sizeY / 8) * cos (float ((i + pos) * 2 * 3.14159f) / float (sinLen)), col);
             generated_img.setPixel (i + sizeX / 8, sizeY / 2 + h, col);
             }
 
-        
         // brightness factor
         float bright = 0;
         if (isDay)
-            {
             bright = float ((sizeY / 2 + h) - y) / float ((sizeY / 2 + h) - yMax);
-            }
         else
-            {
             bright = float (y - (sizeY / 2 + h)) / float (yMin - (sizeY / 2 + h));
-            }
-        
+
         // generates color from height of sun / moon
         sf::Color obj_color;
         obj_color.r = 255;
@@ -104,6 +98,7 @@ int main()
 
         // draws a sun or moon
         for (int i = sizeX / 2; i < sizeX / 2 + sunSize; i++)
+            {            
             for (int j = y; j < y + sunSize; j++)
                 {
                 if (isDay)
@@ -111,17 +106,18 @@ int main()
                 else
                     generated_img.setPixel (i - sunSize / 2, j - sunSize / 2, multiplex (obj_color, moon.getPixel (i - sizeX / 2, j - y)));
                 }
+            }
 
-        generated_img.saveToFile (std::string (thisDirectory + "bgr.png").c_str ());
-
-        wchar_t* bgr_filename = (wchar_t*)calloc (thisDirectory.size (), sizeof (wchar_t));
-
-        std::string thisDirBackground = thisDirectory;
-        thisDirBackground += "bgr.png";
-        memcpy (bgr_filename, thisDirBackground.data (), thisDirBackground.size ());
+        if (generated_img.saveToFile (std::string (thisDirectory + "bgr.png").c_str ()))
+            std::cout << "Saved bgr.png" << std::endl;
+        else
+            std::cout << "Failed to save bgr.png" << std::endl;
         
         // DO NOT TOUCH
-        SystemParametersInfoA (SPI_SETDESKWALLPAPER, 0, (PVOID)thisDirBackground.c_str () , SPIF_UPDATEINIFILE);
+        if (SystemParametersInfoA (SPI_SETDESKWALLPAPER, 0, (PVOID)((thisDirectory + "bgr.png").c_str ()), SPIF_UPDATEINIFILE))
+            std::cout << "Wallpaper set" << std::endl;
+        else
+            std::cout << "Failed to set wallpaper" << std::endl;
 
         Sleep (10000);
         }
