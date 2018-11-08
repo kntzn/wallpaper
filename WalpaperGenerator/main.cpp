@@ -4,7 +4,8 @@
 #define LAT 56.686452f
 #define LON 37.317652f
 #define GMT 3
-
+#define N_BELTS 24
+#define MIN_PER_DEGREE (60.f / (360.f / N_BELTS))
 
 #include <SFML/Graphics.hpp>
 #include <ctime>
@@ -84,8 +85,13 @@ int main()
         sf::Image generated_img;
         generated_img.create (sizeX, sizeY, sf::Color::Black);
 
+        // Current time in minutes since 0:00
+        int currentTime = Time->tm_hour * 60 + Time->tm_min;
+        // Local (astronomical) time in minutes in this time belt
+        float currentLocalTime = (float)(currentTime) + float (LON - GMT * 15.f)*MIN_PER_DEGREE;
+
         // Coords of sun/moon
-        int pos = (Time->tm_hour * 60 + Time->tm_min - float (GMT * 15.f - LON) * (60.f / 15.f))*sinLen / (24 * 60);
+        int pos = int (float (sinLen)*(currentLocalTime / float (24 * 60)));
         
         int y = sinAmpl * cos (float ((pos) * 2 * 3.14159f) / float (sinLen));
         int yMax = - sizeY / 8;
