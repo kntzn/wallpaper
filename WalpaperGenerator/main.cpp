@@ -11,6 +11,7 @@
 #include <Windows.h>
 #include <iostream>
 #include <stdlib.h>
+#include <assert.h>
 
 sf::Color multiplex (sf::Color c1, sf::Color c2)
     {
@@ -29,17 +30,29 @@ int main()
     const int sinLen = sizeX * 3 / 4;
 
     const int sunSize = 25;
+    
+    // Gets the current dir
+    // I sure that there is much easier way to do it
+    std::string thisDirectory = "";
+    thisDirectory.append (_pgmptr);
+    assert (thisDirectory [(thisDirectory.size () - 1) - 8] == '\\');
+    for (int i = 0; i < 8; i++)
+        thisDirectory.pop_back ();
+    
+    // Loads images
     sf::Image sun;
-    if (sun.loadFromFile ("sun.png"))
+    if (sun.loadFromFile (std::string (thisDirectory + "sun.png").c_str ()))
         std::cout << "Loaded sun.png\n";
     else
         std::cout << "Failed to load sun.png\n";
 
     sf::Image moon;
-    if (moon.loadFromFile ("moon.png"))
+    if (moon.loadFromFile (std::string (thisDirectory + "moon.png").c_str ()))
         std::cout << "Loaded moon.png\n";
     else
         std::cout << "Failed to load moon.png\n";
+
+
 
     while (true)
         {
@@ -99,9 +112,16 @@ int main()
                     generated_img.setPixel (i - sunSize / 2, j - sunSize / 2, multiplex (obj_color, moon.getPixel (i - sizeX / 2, j - y)));
                 }
 
-        generated_img.saveToFile ("C:\\wp\\bgr.png");
+        generated_img.saveToFile (std::string (thisDirectory + "bgr.png").c_str ());
 
-        SystemParametersInfo (SPI_SETDESKWALLPAPER, 0, L"C:\\wp\\bgr.png", SPIF_UPDATEINIFILE);
+        wchar_t* bgr_filename = (wchar_t*)calloc (thisDirectory.size (), sizeof (wchar_t));
+
+        std::string thisDirBackground = thisDirectory;
+        thisDirBackground += "bgr.png";
+        memcpy (bgr_filename, thisDirBackground.data (), thisDirBackground.size ());
+        
+        // DO NOT TOUCH
+        SystemParametersInfoA (SPI_SETDESKWALLPAPER, 0, (PVOID)thisDirBackground.c_str () , SPIF_UPDATEINIFILE);
 
         Sleep (10000);
         }
