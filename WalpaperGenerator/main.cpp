@@ -45,8 +45,12 @@ int main()
 	{
     const int sizeX = 1920;
     const int sizeY = 1080;
-    const int sinLen = sizeX * 3 / 4;
+    const int centerOffset = sizeY / 2;
+    const int xOffset = sizeX / 8;
 
+    const int sinLen = sizeX - 2*xOffset;
+    const float sinAmpl = float (sizeY) / 8.f;
+    
     const int sunSize = 25;
     
     // Gets the current dir
@@ -66,9 +70,9 @@ int main()
 
     sf::Image moon;
     if (moon.loadFromFile (std::string (thisDirectory + "moon.png").c_str ()))
-        std::cout << "Loaded moon.png\n";
+        std::cout << "Loaded moon.png\n\n";
     else
-        std::cout << "Failed to load moon.png\n";
+        std::cout << "Failed to load moon.png\n\n";
 
     while (true)
         {
@@ -76,50 +80,51 @@ int main()
         time_t now = time (0);
         tm* Time = localtime (&now);
 
-        // creates image
+        // Creates target image
         sf::Image generated_img;
         generated_img.create (sizeX, sizeY, sf::Color::Black);
 
-        // coords of sun/moon
+        // Coords of sun/moon
         int pos = (Time->tm_hour * 60 + Time->tm_min - float (GMT * 15.f - LON) * (60.f / 15.f))*sinLen / (24 * 60);
         
-        int y = sizeY / 2 + float (sizeY / 8) * cos (float ((pos) * 2 * 3.14159f) / float (sinLen));
-        int yMax = sizeY / 2 - sizeY / 8;
-        int yMin = sizeY / 2 + sizeY / 8;
+        int y = sinAmpl * cos (float ((pos) * 2 * 3.14159f) / float (sinLen));
+        int yMax = - sizeY / 8;
+        int yMin =   sizeY / 8;
 
-        // Zero-angle line
+        // Zero-angle line height
         int h = -float (sizeY / 8) * cos ((Time->tm_yday + 5)*(2.f*3.14159f) / 365) * fabs (EARTH_AXIS / (90 - LAT));
 
         // Value that represents current sun position
-        bool isDay = (y < h + sizeY / 2);
+        bool isDay = (y < h);
 
         // draws a sine wave
         for (int i = -sizeX / 8; i < sinLen + sizeX / 8; i++)
             {
-            uint8_t bright = 255 - 255 * pow (float (abs (sizeX / 2 - (i + sizeX / 8))) / float (sizeX), 0.08);
+            uint8_t bright = 255 - 255 * pow (float (abs (sizeX / 2 - (i + xOffset))) / float (sizeX), 0.08);
             sf::Color col (bright, bright, bright);
-            generated_img.setPixel (i + sizeX / 8, sizeY / 2 + float (-sizeY / 8) * cos (float ((i + pos) * 2 * 3.14159f) / float (sinLen)), col);
+
+            generated_img.setPixel (i + xOffset, centerOffset - sinAmpl * cos (float ((i + pos) * 2 * 3.14159f) / float (sinLen)), col);
 
             // Draws the line
-            generated_img.setPixel (i + sizeX / 8, sizeY / 2 + h, col);
+            generated_img.setPixel (i + xOffset, centerOffset + h, col);
             }
 
         // brightness factor
         float bright = 0;
         if (isDay)
-            bright = float ((sizeY / 2 + h) - y) / float ((sizeY / 2 + h) - yMax);
+            bright = float (h - y) / float (h - yMax);
         else
-            bright = float (y - (sizeY / 2 + h)) / float (yMin - (sizeY / 2 + h));
+            bright = float (y - h) / float (yMin - h);
 
         // Draws sun or moon
         if (isDay)
             generated_img.copy (makeCopyRed (sunSize, sun, bright), 
-                                sizeX / 2 - sunSize / 2, 
-                                y         - sunSize / 2);
+                                sizeX / 2     - sunSize / 2, 
+                                sizeY / 2 + y - sunSize / 2);
         else
             generated_img.copy (makeCopyRed (sunSize, moon, bright), 
-                                sizeX / 2 - sunSize / 2,
-                                y         - sunSize / 2);
+                                sizeX / 2     - sunSize / 2,
+                                sizeY / 2 + y - sunSize / 2);
 
 
         // Saves result
