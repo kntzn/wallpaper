@@ -74,6 +74,11 @@ int main()
     else
         std::cout << "Failed to load moon.png\n\n";
 
+    // Array of usage
+    bool usage [24*60] = {};
+    // Time of last usage update
+    int lastUsageTime = 0;
+
     while (true)
         {
         // Gets current pc time
@@ -89,6 +94,9 @@ int main()
         // Local (astronomical) time in minutes in this time belt
         float currentLocalTime = (float)(currentTime) + float (LON - GMT * 15.f)*MIN_PER_DEGREE;
 
+        // sets usage array to max value at current point
+        usage [int (currentLocalTime + 24 * 60) % (24 * 60)] = true;
+
         // Coords of sun/moon
         int pos = int (float (sinLen)*(currentLocalTime / float (24 * 60)));
         
@@ -103,16 +111,16 @@ int main()
         bool isDay = (y < h);
 
         // draws a sine wave
-        for (int i = -xOffset; i < sinLen + xOffset; i++)
+        for (int i = 0; i < sizeX; i++)
             {
-            sf::Uint8 bright = 255 - sf::Uint8 (255 * pow (float (abs (sizeX / 2 - (i + xOffset))) / float (sizeX), 0.08));
+            sf::Uint8 bright = 255 - sf::Uint8 (255 * pow (float (abs (sizeX / 2 - (i))) / float (sizeX), 0.08));
             sf::Color col (bright, bright, bright);
 
             // Draws the sine
-            generated_img.setPixel (i + xOffset, centerOffset - int (sinAmpl * cos (float ((i + pos) * 2 * 3.14159f) / float (sinLen))), col);
+            generated_img.setPixel (i, centerOffset - int (sinAmpl * cos (float ((i + pos - xOffset) * 2 * 3.14159f) / float (sinLen))), col);
 
             // Draws the line
-            generated_img.setPixel (i + xOffset, centerOffset + h, col);
+            generated_img.setPixel (i, centerOffset + h, col);
             }
 
         // brightness factor
