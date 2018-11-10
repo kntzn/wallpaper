@@ -7,6 +7,8 @@
 #define N_BELTS 24
 #define MIN_PER_DEGREE (60.f / (360.f / N_BELTS))
 #define MIN_PER_DAY 1440
+#define UPM 5
+#define USAGE_VISUALIZATION_MINUTES (MIN_PER_DAY / 2) * UPM
 
 #include <SFML/Graphics.hpp>
 #include <ctime>
@@ -76,7 +78,7 @@ int main()
         std::cout << "Failed to load moon.png\n\n";
 
     // Array of usage
-    bool usage [24*60] = {};
+    int usage [MIN_PER_DAY] = {};
     
     // Time of last usage update
     int lastUsageTime = 0;
@@ -136,7 +138,11 @@ int main()
             }
         
         // Sets current usage
-        usage [currentLocalTimeByMod] = true;
+        usage [currentLocalTimeByMod] = USAGE_VISUALIZATION_MINUTES;
+
+        for (int i = 0; i < MIN_PER_DAY; i++)
+            if (usage [i] > 0)
+                usage [i]--;
 
         // brightness factor
         float bright = 0;
@@ -168,7 +174,7 @@ int main()
         else
             std::cout << "Failed to set wallpaper" << std::endl;
 
-        Sleep (10000);
+        Sleep (60*1000/UPM);
         }
 
     
