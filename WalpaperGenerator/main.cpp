@@ -77,7 +77,7 @@ int main()
     // Array of usage
     bool usage [24*60] = {};
     
-    for (int i = 400; i < 1000; i++)
+    for (int i = 525; i < 865; i++)
         usage [i] = true;
 
     // Time of last usage update
@@ -120,15 +120,20 @@ int main()
             sf::Uint8 bright = 255 - sf::Uint8 (255 * pow (float (abs (sizeX / 2 - (i))) / float (sizeX), 0.08));
             sf::Color col (bright, bright, bright);
 
-            int timeIndexFromIter = i * (60 * 24) / sizeX;
-            if (usage [timeIndexFromIter])
+            // Draws the line
+            generated_img.setPixel (i, centerOffset + h, col);
+            
+            // Colors the sine if pc was used
+            
+            // Scaled array index
+            int timeIndexFromIter = (i - sizeX / 2) * (60 * 24) / sizeX;
+            
+            if (usage [(timeIndexFromIter + pos - xOffset + 1440)%1440])
                 col = multiplex (col, sf::Color (0, 255, 255));
                 
             // Draws the sine
             generated_img.setPixel (i, centerOffset - int (sinAmpl * cos (float ((i + pos - xOffset) * 2 * 3.14159f) / float (sinLen))), col);
 
-            // Draws the line
-            generated_img.setPixel (i, centerOffset + h, col);
             }
 
         // brightness factor
