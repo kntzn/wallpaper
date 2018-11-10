@@ -6,7 +6,7 @@
 #define GMT 3
 #define N_BELTS 24
 #define MIN_PER_DEGREE (60.f / (360.f / N_BELTS))
-#define MIN_PER_DAY 24 * 60
+#define MIN_PER_DAY 1440
 
 #include <SFML/Graphics.hpp>
 #include <ctime>
@@ -49,7 +49,7 @@ int main()
     const int sizeX = 1920;
     const int sizeY = 1080;
     const int centerOffset = sizeY / 2;
-    const int xOffset = sizeX/16;
+    const int xOffset = sizeX/8;
 
     const int sinLen = sizeX - 2*xOffset;
     const float sinAmpl = float (sizeY) / 8.f;
@@ -92,7 +92,7 @@ int main()
         generated_img.create (sizeX, sizeY, sf::Color::Black);
 
         // Current time in minutes since 0:00
-        int currentTime = Time->hour * 60 + Time->tm_min;
+        int currentTime = Time->tm_hour * 60 + Time->tm_min;
         // Local (astronomical) time in minutes in this time belt
         float currentLocalTime = (float)(currentTime) + float (LON - GMT * 15.f)*MIN_PER_DEGREE;
         // Astronomical time in minutes by module MIN_PER_DAY
@@ -126,16 +126,16 @@ int main()
             // Colors the sine if pc was used
             
             // Scaled array index
-            int timeIndexFromIter = (i - sizeX / 2) * MIN_PER_DAY / sizeX;
+            int timeIndexFromIter = (i - sizeX / 2) * MIN_PER_DAY / sinLen;
             
-            if (usage [(timeIndexFromIter + pos - xOffset + MIN_PER_DAY) % MIN_PER_DAY])
-                col = multiplex (col, sf::Color (0, 255, 255));
+            if (usage [(timeIndexFromIter + pos + MIN_PER_DAY) % MIN_PER_DAY])
+                col = sf::Color (100, 0, 255);
                 
             // Draws the sine
             generated_img.setPixel (i, centerOffset - int (sinAmpl * cos (float ((i + pos - xOffset) * 2 * 3.14159f) / float (sinLen))), col);
-
             }
-
+        
+        // Sets current usage
         usage [currentLocalTimeByMod] = true;
 
         // brightness factor
