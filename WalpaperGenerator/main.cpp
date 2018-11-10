@@ -77,6 +77,9 @@ int main()
     // Array of usage
     bool usage [24*60] = {};
     
+    for (int i = 400; i < 1000; i++)
+        usage [i] = true;
+
     // Time of last usage update
     int lastUsageTime = 0;
 
@@ -117,16 +120,10 @@ int main()
             sf::Uint8 bright = 255 - sf::Uint8 (255 * pow (float (abs (sizeX / 2 - (i))) / float (sizeX), 0.08));
             sf::Color col (bright, bright, bright);
 
-            for (int j = 0; j < 60 * 24; j++)
-                {
-                if (usage [j] == currentLocalTime)
-                    {
-                    int px_pos = int (float (sinLen)*(currentLocalTime / float (24 * 60))) - sizeX / 2;
-                    if (px_pos == i)
-                        col = multiplex (col, sf::Color (100, 0, 255));
-                    }
-                }
-
+            int timeIndexFromIter = i * (60 * 24) / sizeX;
+            if (usage [timeIndexFromIter])
+                col = multiplex (col, sf::Color (0, 255, 255));
+                
             // Draws the sine
             generated_img.setPixel (i, centerOffset - int (sinAmpl * cos (float ((i + pos - xOffset) * 2 * 3.14159f) / float (sinLen))), col);
 
