@@ -133,8 +133,10 @@ int main()
             // Scaled array index
             int timeIndexFromIter = (i - sizeX / 2) * MIN_PER_DAY / sinLen;
             
-            if (usage [(timeIndexFromIter + pos + MIN_PER_DAY) % MIN_PER_DAY])
-                col = sf::Color (100, 0, 255);
+            // Colors the pixel 
+            if (i < sizeX / 2)
+                if (usage [(timeIndexFromIter + pos + MIN_PER_DAY) % MIN_PER_DAY])
+                    col = sf::Color (100, 0, 255);
                 
             // Draws the sine
             generated_img.setPixel (i, centerOffset - int (sinAmpl * cos (float ((i + pos - xOffset) * 2 * 3.14159f) / float (sinLen))), col);
