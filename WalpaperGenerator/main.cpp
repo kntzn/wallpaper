@@ -7,8 +7,8 @@
 #define N_BELTS 24
 #define MIN_PER_DEGREE (60.f / (360.f / N_BELTS))
 #define MIN_PER_DAY 1440
-#define UPM 5
-#define USAGE_VISUALIZATION_MINUTES (MIN_PER_DAY / 2) * UPM
+#define UPM 3
+#define USAGE_VISUALIZATION_MINUTES (MIN_PER_DAY / 4) * UPM
 
 #include <SFML/Graphics.hpp>
 #include <ctime>
@@ -85,6 +85,9 @@ int main()
 
     while (true)
         {
+        // Execution time timer
+        clock_t exec_start = clock ();
+
         // Gets current pc time
         time_t now = time (0);
         tm* Time = localtime (&now);
@@ -174,7 +177,10 @@ int main()
         else
             std::cout << "Failed to set wallpaper" << std::endl;
 
-        Sleep (60*1000/UPM);
+        clock_t dt = clock () - exec_start;
+
+        if (dt < 60 * 1000 / UPM)
+            Sleep (60 * 1000 / UPM - dt);
         }
 
     
