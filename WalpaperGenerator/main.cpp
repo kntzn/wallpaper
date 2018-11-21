@@ -8,7 +8,7 @@
 #define MIN_PER_DEGREE (60.f / (360.f / N_BELTS))
 #define MIN_PER_DAY 1440
 #define UPM 3
-#define USAGE_VISUALIZATION_MINUTES (MIN_PER_DAY / 4) * UPM
+#define USAGE_VISUALIZATION_MINUTES MIN_PER_DAY/2
 
 #include <SFML/Graphics.hpp>
 #include <ctime>
@@ -134,7 +134,7 @@ int main()
             int timeIndexFromIter = (i - sizeX / 2) * MIN_PER_DAY / sinLen;
             
             // Colors the pixel 
-            if (i < sizeX / 2)
+            if (i <= sizeX / 2)
                 if (usage [(timeIndexFromIter + pos + MIN_PER_DAY) % MIN_PER_DAY])
                     col = sf::Color (100, 0, 255);
                 
@@ -145,9 +145,15 @@ int main()
         // Sets current usage
         usage [currentLocalTimeByMod] = USAGE_VISUALIZATION_MINUTES;
 
+
         for (int i = 0; i < MIN_PER_DAY; i++)
             if (usage [i] > 0)
-                usage [i]--;
+                usage [i] -= (MIN_PER_DAY + currentLocalTimeByMod - lastUsageTime) % MIN_PER_DAY;
+            else
+                usage [i] = 0;
+
+        lastUsageTime = currentLocalTimeByMod;
+
 
         // brightness factor
         float bright = 0;
