@@ -123,11 +123,10 @@ int main()
         sf::Image generated_img;
         generated_img.create (sizeX, sizeY, sf::Color::Black);
       
+        // -------- CALCULATIONS -------- //
+
         // Astronomical time in minutes by module MIN_PER_DAY
         float currentLocalTimeByMod = (float) (int (getCurrentLocalTime () + MIN_PER_DAY) % MIN_PER_DAY);
-
-        // sets usage array to max value at current point
-        usage [int (currentLocalTimeByMod)] = true;
 
         // Coords of sun/moon
         int x = int (float (sinLen)*(currentLocalTimeByMod / float (24 * 60)));
@@ -138,6 +137,17 @@ int main()
 
         // Value that represents current sun position
         bool isDay = (y < h);
+
+        // brightness factor
+        float sun_bright = 0;
+        if (isDay)
+            sun_bright = float (h - y) / float (h + sizeY / 8);
+        else
+            sun_bright = float (y - h) / float (sizeY / 8 - h);
+
+        // -------- !CALCULATIONS -------- //
+
+        // -------- GRAPHICS -------- //
 
         // draws a sine wave
         for (int i = 0; i < sizeX; i++)
@@ -163,37 +173,38 @@ int main()
             }
        
 
-        // brightness factor
-        float bright = 0;
-        if (isDay)
-            bright = float (h - y) / float (h + sizeY / 8);
-        else
-            bright = float (y - h) / float (sizeY / 8 - h);
-
         // Draws sun or moon
-        if (isDay)
-            generated_img.copy (makeCopyRed (sunSize, sun, bright), 
-                                sizeX / 2     - sunSize / 2, 
-                                sizeY / 2 + y - sunSize / 2);
-        else
-            generated_img.copy (makeCopyRed (sunSize, moon, bright), 
-                                sizeX / 2     - sunSize / 2,
-                                sizeY / 2 + y - sunSize / 2);
+        sf::Image* currentImg = nullptr;
 
+        if (isDay)
+            currentImg = &sun;
+        else
+            currentImg = &moon;
+
+        generated_img.copy (makeCopyRed (sunSize, *currentImg, sun_bright),
+                            sizeX / 2 - sunSize / 2,
+                            sizeY / 2 + y - sunSize / 2);
+
+        // -------- !GRAPHICS -------- //
+
+        // -------- USAGE -------- //
 
         // Sets current usage
         usage [int (currentLocalTimeByMod)] = USAGE_VISUALIZATION_MINUTES;
 
-
+        // Reduces old values
         for (int i = 0; i < MIN_PER_DAY; i++)
             if (usage [i] > 0)
                 usage [i] -= (MIN_PER_DAY + int (currentLocalTimeByMod) - lastUsageTime) % MIN_PER_DAY;
             else
                 usage [i] = 0;
 
+        // Updates last usage
         lastUsageTime = currentLocalTimeByMod;
 
+        // -------- !USAGE -------- //
 
+        // -------- WALLPAPER -------- //
 
         // Saves result
         if (generated_img.saveToFile (std::string (thisDirectory + "bgr.png").c_str ()))
@@ -209,8 +220,12 @@ int main()
 
         clock_t dt = clock () - exec_start;
 
+        // -------- !WALLPAPER -------- //
+
+        // -------- DELAY -------- //
         if (dt < 60 * 1000 / UPM)
             Sleep (60 * 1000 / UPM - dt);
+        // -------- !DELAY -------- //
         }
 
     
