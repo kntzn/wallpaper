@@ -9,6 +9,7 @@
 #define MIN_PER_DAY 1440
 #define UPM 3
 #define USAGE_VISUALIZATION_MINUTES MIN_PER_DAY/2
+#define YEARDATE_OFFSET 11
 
 #include <SFML/Graphics.hpp>
 #include <ctime>
@@ -43,6 +44,36 @@ sf::Image makeCopyRed (const int sunSize, sf::Image target, float bright)
             sun_cpy.setPixel (i, j, multiplex (sun_cpy.getPixel (i, j), obj_color));
             
     return sun_cpy;
+    }
+
+// Current time in minutes since 0:00
+int getCurrentTime ()
+    {
+    // Gets current pc time
+    time_t now = time (0);
+    tm* Time = localtime (&now);
+
+    return Time->tm_hour * 60 + Time->tm_min;
+    }
+
+// Local (astronomical) time in minutes in this time belt
+float getCurrentLocalTime ()
+    {
+    return (float)(getCurrentTime ()) + float (LON - GMT * 15.f)*MIN_PER_DEGREE;
+    }
+
+int getAstronomicalYearDate ()
+    {
+    // Gets current pc time
+    time_t now = time (0);
+    tm* Time = localtime (&now);
+
+    return Time->tm_yday + YEARDATE_OFFSET/2;
+    }
+
+int getLineHeight (float sinAmpl)
+    {
+    return int (-sinAmpl * cos (float (getAstronomicalYearDate ())*(2.f*3.14159f) / 365) * fabs (EARTH_AXIS / (90.f - LAT)));
     }
 
 int main()
@@ -88,33 +119,22 @@ int main()
         // Execution time timer
         clock_t exec_start = clock ();
 
-        // Gets current pc time
-        time_t now = time (0);
-        tm* Time = localtime (&now);
-
         // Creates target image
         sf::Image generated_img;
         generated_img.create (sizeX, sizeY, sf::Color::Black);
-
-        // Current time in minutes since 0:00
-        int currentTime = Time->tm_hour * 60 + Time->tm_min;
-        // Local (astronomical) time in minutes in this time belt
-        float currentLocalTime = (float)(currentTime) + float (LON - GMT * 15.f)*MIN_PER_DEGREE;
+      
         // Astronomical time in minutes by module MIN_PER_DAY
-        int currentLocalTimeByMod = int (currentLocalTime + MIN_PER_DAY) % MIN_PER_DAY;
+        float currentLocalTimeByMod = (float) (int (getCurrentLocalTime () + MIN_PER_DAY) % MIN_PER_DAY);
 
         // sets usage array to max value at current point
-        usage [int (currentLocalTime + 24 * 60) % (24 * 60)] = true;
+        usage [int (currentLocalTimeByMod)] = true;
 
         // Coords of sun/moon
-        int pos = int (float (sinLen)*(currentLocalTime / float (24 * 60)));
+        int x = int (float (sinLen)*(currentLocalTimeByMod / float (24 * 60)));
+        int y = int (sinAmpl * cos (float ((x) * 2 * 3.14159f) / float (sinLen)));
         
-        int y = int (sinAmpl * cos (float ((pos) * 2 * 3.14159f) / float (sinLen)));
-        int yMax = - sizeY / 8;
-        int yMin =   sizeY / 8;
-
         // Zero-angle line height
-        int h = int (-sinAmpl * cos ((Time->tm_yday + 5)*(2.f*3.14159f) / 365) * fabs (EARTH_AXIS / (90.f - LAT)));
+        int h = getLineHeight (sinAmpl);
 
         // Value that represents current sun position
         bool isDay = (y < h);
@@ -135,32 +155,20 @@ int main()
             
             // Colors the pixel 
             if (i <= sizeX / 2)
-                if (usage [(timeIndexFromIter + pos + MIN_PER_DAY) % MIN_PER_DAY])
+                if (usage [(timeIndexFromIter + x + MIN_PER_DAY) % MIN_PER_DAY])
                     col = sf::Color (100, 0, 255);
                 
             // Draws the sine
-            generated_img.setPixel (i, centerOffset - int (sinAmpl * cos (float ((i + pos - xOffset) * 2 * 3.14159f) / float (sinLen))), col);
+            generated_img.setPixel (i, centerOffset - int (sinAmpl * cos (float ((i + x - xOffset) * 2 * 3.14159f) / float (sinLen))), col);
             }
-        
-        // Sets current usage
-        usage [currentLocalTimeByMod] = USAGE_VISUALIZATION_MINUTES;
-
-
-        for (int i = 0; i < MIN_PER_DAY; i++)
-            if (usage [i] > 0)
-                usage [i] -= (MIN_PER_DAY + currentLocalTimeByMod - lastUsageTime) % MIN_PER_DAY;
-            else
-                usage [i] = 0;
-
-        lastUsageTime = currentLocalTimeByMod;
-
+       
 
         // brightness factor
         float bright = 0;
         if (isDay)
-            bright = float (h - y) / float (h - yMax);
+            bright = float (h - y) / float (h + sizeY / 8);
         else
-            bright = float (y - h) / float (yMin - h);
+            bright = float (y - h) / float (sizeY / 8 - h);
 
         // Draws sun or moon
         if (isDay)
@@ -171,6 +179,20 @@ int main()
             generated_img.copy (makeCopyRed (sunSize, moon, bright), 
                                 sizeX / 2     - sunSize / 2,
                                 sizeY / 2 + y - sunSize / 2);
+
+
+        // Sets current usage
+        usage [int (currentLocalTimeByMod)] = USAGE_VISUALIZATION_MINUTES;
+
+
+        for (int i = 0; i < MIN_PER_DAY; i++)
+            if (usage [i] > 0)
+                usage [i] -= (MIN_PER_DAY + int (currentLocalTimeByMod) - lastUsageTime) % MIN_PER_DAY;
+            else
+                usage [i] = 0;
+
+        lastUsageTime = currentLocalTimeByMod;
+
 
 
         // Saves result
