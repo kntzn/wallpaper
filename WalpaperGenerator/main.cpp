@@ -71,9 +71,9 @@ int getAstronomicalYearDate ()
     return Time->tm_yday + YEARDATE_OFFSET/2;
     }
 
-int getLineHeight (float sinAmpl)
+float getLineHeight (float sinAmpl)
     {
-    return int (-sinAmpl * cos (float (getAstronomicalYearDate ())*(2.f*3.14159f) / 365) * fabs (EARTH_AXIS / (90.f - LAT)));
+    return float (-sinAmpl * cos (float (getAstronomicalYearDate ())*(2.f*3.14159f) / 365) * fabs (EARTH_AXIS / (90.f - LAT)));
     }
 
 int main()
@@ -129,11 +129,11 @@ int main()
         float currentLocalTimeByMod = (float) (int (getCurrentLocalTime () + MIN_PER_DAY) % MIN_PER_DAY);
 
         // Coords of sun/moon
-        int x = int (float (sinLen)*(currentLocalTimeByMod / float (24 * 60)));
-        int y = int (sinAmpl * cos (float ((x) * 2 * 3.14159f) / float (sinLen)));
+        float x = float (sinLen)*(currentLocalTimeByMod / float (24 * 60));
+        float y = sinAmpl * cos (float ((x) * 2 * 3.14159f) / float (sinLen));
         
         // Zero-angle line height
-        int h = getLineHeight (sinAmpl);
+        float h = getLineHeight (sinAmpl);
 
         // Value that represents current sun position
         bool isDay = (y < h);
@@ -141,9 +141,9 @@ int main()
         // brightness factor
         float sun_bright = 0;
         if (isDay)
-            sun_bright = float (h - y) / float (h + sizeY / 8);
+            sun_bright = (h - y) / float (h + sizeY / 8);
         else
-            sun_bright = float (y - h) / float (sizeY / 8 - h);
+            sun_bright = (y - h) / float (sizeY / 8 - h);
 
         // -------- !CALCULATIONS -------- //
 
@@ -167,7 +167,7 @@ int main()
             
             // Colors the pixel 
             if (i <= sizeX / 2)
-                if (usage [(timeIndexFromIter + x + MIN_PER_DAY) % MIN_PER_DAY])
+                if (usage [(timeIndexFromIter + int (x) + MIN_PER_DAY) % MIN_PER_DAY])
                     col = sf::Color (100, 0, 255);
                 
             // Draws the sine
@@ -183,8 +183,8 @@ int main()
             currentImg = &moon;
 
         generated_img.copy (makeCopyRed (sunSize, *currentImg, sun_bright),
-                            sizeX / 2 - sunSize / 2,
-                            sizeY / 2 + y - sunSize / 2);
+                            sizeX / 2           - sunSize / 2,
+                            sizeY / 2 + int (y) - sunSize / 2);
 
         // -------- !GRAPHICS -------- //
 
@@ -201,7 +201,7 @@ int main()
                 usage [i] = 0;
 
         // Updates last usage
-        lastUsageTime = currentLocalTimeByMod;
+        lastUsageTime = int (currentLocalTimeByMod);
 
         // -------- !USAGE -------- //
 
