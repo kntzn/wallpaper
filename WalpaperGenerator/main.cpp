@@ -1,8 +1,8 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 #define EARTH_AXIS 23.44f
-#define LAT 56.686452f
-#define LON 37.317652f
+#define LAT 55.911186 //56.686452f 
+#define LON 43.791329 //37.317652f
 #define GMT 3
 #define N_BELTS 24
 #define MIN_PER_DEGREE (60.f / (360.f / N_BELTS))
@@ -147,6 +147,8 @@ int main()
 
         // -------- !CALCULATIONS -------- //
 
+        std::cout << "LAT: " << float (-y - (-getLineHeight (sinAmpl))) * ((90.f - LAT) / sinAmpl) << " LON:" << currentLocalTimeByMod / MIN_PER_DAY * 360 << "\n";
+
         // -------- GRAPHICS -------- //
 
         // draws a sine wave
@@ -172,7 +174,6 @@ int main()
             generated_img.setPixel (i, centerOffset - int (sinAmpl * cos (float ((i + x - xOffset) * 2 * 3.14159f) / float (sinLen))), col);
             }
        
-
         // Draws sun or moon
         sf::Image* currentImg = nullptr;
 
