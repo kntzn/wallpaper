@@ -47,19 +47,21 @@ sf::Image makeCopyRed (const int sunSize, sf::Image target, float bright)
     }
 
 // Current time in minutes since 0:00
-int getCurrentTime ()
+float getCurrentTime ()
     {
     // Gets current pc time
     time_t now = time (0);
     tm* Time = localtime (&now);
 
-    return Time->tm_hour * 60 + Time->tm_min;
+    return float (Time->tm_hour) * 60.f + 
+           float (Time->tm_min)  * 1.f  + 
+           float (Time->tm_sec)  / 60.f;
     }
 
 // Local (astronomical) time in minutes in this time belt
 float getCurrentLocalTime ()
     {
-    return (float)(getCurrentTime ()) + float (LON - GMT * 15.f)*MIN_PER_DEGREE;
+    return (getCurrentTime ()) + float (LON - GMT * 15.f)*MIN_PER_DEGREE;
     }
 
 int getAstronomicalYearDate ()
@@ -126,10 +128,12 @@ int main()
         // -------- CALCULATIONS -------- //
 
         // Astronomical time in minutes by module MIN_PER_DAY
-        float currentLocalTimeByMod = (float) (int (getCurrentLocalTime () + MIN_PER_DAY) % MIN_PER_DAY);
+        float currentLocalTime = getCurrentLocalTime ();
+        float currentLocalTimeByMod = (currentLocalTime > 0)? currentLocalTime : 
+                                                              currentLocalTime + float (MIN_PER_DAY);
 
         // Coords of sun/moon
-        float x = float (sinLen)*(currentLocalTimeByMod / float (24 * 60));
+        float x = float (sinLen)*(currentLocalTimeByMod / float (MIN_PER_DAY));
         float y = sinAmpl * cos (float ((x) * 2 * 3.14159f) / float (sinLen));
         
         // Zero-angle line height
