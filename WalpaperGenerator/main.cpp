@@ -7,7 +7,7 @@
 #define N_BELTS 24
 #define MIN_PER_DEGREE (60.f / (360.f / N_BELTS))
 #define MIN_PER_DAY 1440
-#define UPM 3
+#define UPM 6
 #define USAGE_VISUALIZATION_MINUTES MIN_PER_DAY/2
 #define YEARDATE_OFFSET 11
 
@@ -17,6 +17,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <assert.h>
+//#include "ImageGenerator.h"
 
 sf::Color multiplex (sf::Color c1, sf::Color c2)
     {
@@ -80,7 +81,7 @@ float getLineHeight (float sinAmpl)
 
 int main()
 	{
-    // Parameters
+    // ParamEters
     const int sizeX = 1920;
     const int sizeY = 1080;
     const int centerOffset = sizeY / 2;
@@ -92,7 +93,7 @@ int main()
     const int sunSize = 25;
     
     // Gets the current dir
-    // I sure that there is much easier way to do it
+    // I'm sure that the much easier way to do this exists
     std::string thisDirectory = _pgmptr;
     while (thisDirectory [(thisDirectory.size () - 1)] != '\\')
         thisDirectory.pop_back ();
@@ -149,6 +150,20 @@ int main()
         else
             sun_bright = (y - h) / float (sizeY / 8 - h);
 
+
+        // moon offset from sun position
+        float moon_x_offset = (float (getAstronomicalYearDate ()) + 11 + 356.f) / 29.3f * float (sinLen);
+        while (moon_x_offset > sinLen / 2.f)
+            moon_x_offset -= sinLen;
+
+
+        // Moon
+        float moon_x = x + moon_x_offset;
+        
+        float moon_y = 200;
+
+        
+
         // -------- !CALCULATIONS -------- //
 
         std::cout << "LAT: " << float (-y - (-getLineHeight (sinAmpl))) * ((90.f - LAT) / sinAmpl) << " LON:" << currentLocalTimeByMod / MIN_PER_DAY * 360 << "\n";
@@ -180,15 +195,20 @@ int main()
        
         // Draws sun or moon
         sf::Image* currentImg = nullptr;
-
-        if (isDay)
-            currentImg = &sun;
-        else
-            currentImg = &moon;
+        currentImg = &sun;
 
         generated_img.copy (makeCopyRed (sunSize, *currentImg, sun_bright),
                             sizeX / 2           - sunSize / 2,
                             sizeY / 2 + int (y) - sunSize / 2);
+
+
+        //if (isDay)
+
+        //else
+        //currentImg = &moon;
+
+        generated_img.copy (moon, moon_x, moon_y);
+
 
         // -------- !GRAPHICS -------- //
 
