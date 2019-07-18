@@ -11,6 +11,8 @@
 #define USAGE_VISUALIZATION_MINUTES MIN_PER_DAY/2
 #define YEARDATE_OFFSET 11
 
+#define ver "1.0.2"
+
 #include <SFML/Graphics.hpp>
 #include <ctime>
 #include <Windows.h>
@@ -81,6 +83,9 @@ float getLineHeight (float sinAmpl)
 
 int main()
 	{
+    std::cout << "WPGN (Wallpaper generator)\n"
+                 "Ver. " <<ver << std::endl;
+
     // ParamEters
     const int sizeX = 1920;
     const int sizeY = 1080;
@@ -187,7 +192,7 @@ int main()
             // Colors the pixel 
             if (i <= sizeX / 2)
                 if (usage [(timeIndexFromIter + int (x) + MIN_PER_DAY) % MIN_PER_DAY])
-                    col = sf::Color (100, 0, 255);
+                    col = sf::Color (bright, bright / 2, 0);
                 
             // Draws the sine
             generated_img.setPixel (i, centerOffset - int (sinAmpl * cos (float ((i + x - xOffset) * 2 * 3.14159f) / float (sinLen))), col);
@@ -207,7 +212,7 @@ int main()
         //else
         //currentImg = &moon;
 
-        generated_img.copy (moon, moon_x, moon_y);
+        //generated_img.copy (moon, moon_x, moon_y);
 
 
         // -------- !GRAPHICS -------- //
