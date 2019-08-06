@@ -7,11 +7,11 @@
 #define N_BELTS 24
 #define MIN_PER_DEGREE (60.f / (360.f / N_BELTS))
 #define MIN_PER_DAY 1440
-#define UPM 6
+#define UPM 3
 #define USAGE_VISUALIZATION_MINUTES MIN_PER_DAY/2
 #define YEARDATE_OFFSET 11
 
-#define ver "1.0.2"
+#define ver "1.0.3"
 
 #include <SFML/Graphics.hpp>
 #include <ctime>
@@ -84,7 +84,7 @@ float getLineHeight (float sinAmpl)
 int main()
 	{
     std::cout << "WPGN (Wallpaper generator)\n"
-                 "Ver. " <<ver << std::endl;
+                 "Ver. " << ver << std::endl;
 
     // ParamEters
     const int sizeX = 1920;
@@ -192,7 +192,7 @@ int main()
             // Colors the pixel 
             if (i <= sizeX / 2)
                 if (usage [(timeIndexFromIter + int (x) + MIN_PER_DAY) % MIN_PER_DAY])
-                    col = sf::Color (bright, bright / 2, 0);
+                    col = (bright > 63) ? sf::Color (255, 127, 0) : sf::Color (bright * 4, bright * 2, 0);
                 
             // Draws the sine
             generated_img.setPixel (i, centerOffset - int (sinAmpl * cos (float ((i + x - xOffset) * 2 * 3.14159f) / float (sinLen))), col);
